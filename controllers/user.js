@@ -71,10 +71,14 @@ const signup = async (req, res) => {
         });        
 
         // Encrypt the password
-        
-        const hashedPassword = await bcrypt.hash(password, 12);
+        const salt = await bcrypt.genSalt(12);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        // save
+        const result = await UserModal.create({ email, password: hashedPassword, name });
 
         // return jwt
+
 
      } catch (error) {
          console.log(error.message);
