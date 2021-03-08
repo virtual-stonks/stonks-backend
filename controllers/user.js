@@ -76,7 +76,18 @@ const signup = async (req, res) => {
      }    
 }
 
+const userDetails = async (req, res) => {
+    try {
+        const user = await UserModel.findById(req.user.id).select("-password");
+        res.status(201).json(user);
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({ message: "Something went wrong" });   
+    }
+}
+
 module.exports = {
     signin,
-    signup
+    signup,
+    userDetails
 }
