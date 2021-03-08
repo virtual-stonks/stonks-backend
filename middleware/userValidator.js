@@ -1,6 +1,6 @@
 const {check, validationResult} = require('express-validator');
 
-const userValidationRules = () => {
+const userValidationRulesSignup = (typeofauth) => {
     return [      
       check('name')
         .trim()
@@ -26,6 +26,23 @@ const userValidationRules = () => {
     ]
 }
 
+const userValidationRulesSignin = (typeofauth) => {
+  return [      
+    check('email')
+      .trim()
+      .normalizeEmail()
+      .not()
+      .isEmpty()
+      .withMessage('Invalid email address!')
+      .bail(),
+    check('password')
+      .not()
+      .isEmpty()
+      .withMessage('Password cannot be empty!')
+      .bail(),    
+  ]
+}
+
 const validate = (req, res, next) => {   
     const errors = validationResult(req)
     if (errors.isEmpty()) {
@@ -40,7 +57,8 @@ const validate = (req, res, next) => {
 }
 
 module.exports = {
-    userValidationRules,
+    userValidationRulesSignin,
+    userValidationRulesSignup,
     validate,
 }
 

@@ -4,29 +4,40 @@ const gravatar = require('gravatar');
 
 const UserModel = require("../models/user.js");
 
-//  const signin = async (req, res) => {
-//   const { email, password } = req.body;
-
-//   try {
-//     const oldUser = await UserModal.findOne({ email });
-
-//     if (!oldUser) return res.status(404).json({ message: "User doesn't exist" });
-
-//     const isPasswordCorrect = await bcrypt.compare(password, oldUser.password);
-
-//     if (!isPasswordCorrect) return res.status(400).json({ message: "Invalid credentials" });
-
-//     const token = jwt.sign({ email: oldUser.email, id: oldUser._id }, secret, { expiresIn: "1h" });
-
-//     res.status(200).json({ result: oldUser, token });
-//   } catch (err) {
-//     res.status(500).json({ message: "Something went wrong" });
-//   }
-// };
-
-const signin = (req, res) => {
+const signin = async (req, res) => {
     console.log(req.body);
-    res.send('signin')
+    const { email, password } = req.body;
+
+    try {
+        const oldUser = await UserModel.findOne({ email });
+        if (!oldUser) 
+            return res.status(404).json({ message: "Invalid credentials" });
+        
+        const isPasswordCorrect = await bcrypt.compare(password, oldUser.password);
+
+        if (!isPasswordCorrect) 
+            return res.status(400).json({ message: "Invalid credentials" });
+
+        
+        const payload = {
+            user: {
+                email: oldUser.email,
+                id: oldUser._id
+            }
+        };
+
+        const token = jwt.sign(
+            payload, 
+            process.env.JWT_SECRET, 
+            { expiresIn: "1h" } 
+        );
+
+        res.status(201).json({ token });
+
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({ message: "Invalid credentials!" });   
+    }    
 }
 
 const signup = async (req, res) => {
@@ -72,7 +83,7 @@ const signup = async (req, res) => {
 
      } catch (error) {
          console.log(error.message);
-         res.status(500).json({ message: "Something went wrong" });   
+         res.status(500).json({ message: "Failed to sign up!" });   
      }    
 }
 
@@ -82,7 +93,7 @@ const userDetails = async (req, res) => {
         res.status(201).json(user);
     } catch (error) {
         console.log(error.message);
-        res.status(500).json({ message: "Something went wrong" });   
+        res.status(500).json({ message: "Server Error" });   
     }
 }
 
