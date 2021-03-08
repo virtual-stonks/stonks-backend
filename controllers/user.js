@@ -4,8 +4,6 @@ const gravatar = require('gravatar');
 
 const UserModel = require("../models/user.js");
 
-const secret = 'test';
-
 //  const signin = async (req, res) => {
 //   const { email, password } = req.body;
 
@@ -31,35 +29,13 @@ const signin = (req, res) => {
     res.send('signin')
 }
 
-//  const signup = async (req, res) => {
-//   const { email, password, firstName, lastName } = req.body;
-
-//   try {
-//     const oldUser = await UserModal.findOne({ email });
-
-//     if (oldUser) 
-//         return res.status(400).json({ message: "User already exists" });
-
-//     const hashedPassword = await bcrypt.hash(password, 12);
-
-//     const result = await UserModal.create({ email, password: hashedPassword, name: `${firstName} ${lastName}` });
-
-//     const token = jwt.sign( { email: result.email, id: result._id }, secret, { expiresIn: "1h" } );
-
-//     res.status(201).json({ result, token });
-//   } catch (error) {
-//     res.status(500).json({ message: "Something went wrong" });    
-//     console.log(error);
-//   }
-// };
-
 const signup = async (req, res) => {
     console.log(req.body);
     const { email, password, name } = req.body;
 
      try {
         // See if user exists
-        const oldUser = await UserModal.findOne({ email });
+        const oldUser = await UserModel.findOne({ email });
         if (oldUser) 
             return res.status(400).json({ errors: [{message: "User already exists"}] });
 
@@ -75,17 +51,29 @@ const signup = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, salt);
 
         // save
-        const result = await UserModal.create({ email, password: hashedPassword, name });
-
+        const result = await UserModel.create({ email, password: hashedPassword, name, avatar });
+        
         // return jwt
+        const payload = {
+            user: {
+                email: result.email,
+                id: result._id
+            }
+        };
 
+        const token = jwt.sign(
+            payload, 
+            process.env.JWT_SECRET, 
+            { expiresIn: "1h" } 
+        );
+
+        // send json 
+        res.status(201).json({ token });
 
      } catch (error) {
          console.log(error.message);
          res.status(500).json({ message: "Something went wrong" });   
-     }
-
-    res.send('signup')
+     }    
 }
 
 module.exports = {

@@ -1,28 +1,27 @@
-import jwt from "jsonwebtoken";
+const jwt =  require("jsonwebtoken");
 
-const secret = 'test';
+const secret = process.env.JWT_SECRET;
 
 const auth = async (req, res, next) => {
   try {
+    // Get the token from the header
     const token = req.headers.authorization.split(" ")[1];
-    const isCustomAuth = token.length < 500;
+    console.log(token);
 
-    let decodedData;
+    // Check if no token
+    if(!token){
+      res.status(401).json({ msg: "No token, authorization denied"});
+    }
 
-    if (token && isCustomAuth) {      
-      decodedData = jwt.verify(token, secret);
-
-      req.userId = decodedData?.id;
-    } else {
-      decodedData = jwt.decode(token);
-
-      req.userId = decodedData?.sub;
-    }    
+    // Verify token    
+    const decodedData = jwt.verify(token, secret);
+    req.user = decodedData.user;        
 
     next();
   } catch (error) {
-    console.log(error);
+    console.log(error.message);
+    res.status(401).json({ msg: "Invalid token"});
   }
 };
 
-export default auth;
+module.exports = auth;
