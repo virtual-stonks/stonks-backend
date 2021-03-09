@@ -1,0 +1,15 @@
+STOCK ROUTES
+
+POST /buy BUY STOCK 
+POST /sell SELL STOCK
+
+GET /holdings GET ALL STOCK holdings
+
+
+
+USER ROUTES
+
+POST /signin SIGN IN
+POST /signup SIGN UP
+
+GET /userdetails GET USER DETAILS
