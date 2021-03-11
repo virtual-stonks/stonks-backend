@@ -9,8 +9,3 @@ const stockSchema = mongoose.Schema({
 });
 
 module.exports = mongoose.model("Stock", stockSchema);
-
-
-// invest - 1000(normal money)
-// avgPrice = invest/qty
-// currValue  - 1100(ltp * qty)
