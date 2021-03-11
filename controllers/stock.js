@@ -11,7 +11,7 @@ const buy = async (req,res) => {
     const user = await UserModel.findById(req.user.id);
     try{
         if(user.wallet < qty * price)
-            return res.status(400).json({ errors: [{message: "Wallet insufficient"}] });
+            return res.status(400).json({ errors: [{message: "Wallet insufficient."}] });
         user.wallet -= qty * price;
 
         var isBought = false;
