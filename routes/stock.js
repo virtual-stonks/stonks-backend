@@ -6,8 +6,6 @@ const { buy, sell, holdings } = require("../controllers/stock.js");
 
 router.post("/buy", auth, buy);
 router.post("/sell", auth, sell);
-
-// 
 router.get("/holdings", auth, holdings);
 
 module.exports = router;
