@@ -5,8 +5,8 @@ const UserModel = require("../models/user.js");
 const StockModel = require("../models/stock.js");
 
 const buy = async (req,res) => {   
-    console.log("user", req.user);
-    console.log("query", req.query);    
+    // console.log("user", req.user);
+    // console.log("query", req.query);    
 
     let {qty, price, stockName} = req.query;
     const {email, id} = req.user;
@@ -18,9 +18,9 @@ const buy = async (req,res) => {
             return res.status(400).json({ errors: [{message: "Wallet insufficient."}] });
         user.wallet -= qty * price;
 
-        var isBought = false;
-        for(var i = 0; i < user.stocksBucket.length; i++){
-            if(user.stocksBucket[i].name == stockName){
+        let isBought = false;
+        for(let i = 0; i < user.stocksBucket.length; i++){
+            if(user.stocksBucket[i].stockName == stockName){
                 user.stocksBucket[i].ltp = price;
                 user.stocksBucket[i].qty += qty; 
                 user.stocksBucket[i].investedVal += qty * price;                
@@ -30,7 +30,7 @@ const buy = async (req,res) => {
         }
 
         if(!isBought){
-            const newStock = new StockModel({ name : stockName, 
+            const newStock = new StockModel({   stockName, 
                                                        qty,
                                                        investedVal : qty * price,                                                       
                                                        ltp: price
@@ -47,23 +47,43 @@ const buy = async (req,res) => {
 }
 
 const sell = async (req,res) => {
-    const {qty, price, stockName} = req.query;
-
-    const user = await UserModel.findById(req.user.id);
+    let {qty, price, stockName} = req.query;
+    const {email, id} = req.user;
+    
     try{
-        var isBought = false;
-        for(var i = user.stocksBucket.size - 1; i >= 0 ; i--){
-            if(user.stocksBucket[i].name == stockName){
-                //update currentval of stock
-                //update wallet by currentval
+        const user = await UserModel.findById(req.user.id);
+        let isBought = false;
 
-                user.stocksBucket.splice(i, 1);
-                isBought = true; break; 
+        for(let i = user.stocksBucket.length - 1; i >= 0 ; i--){
+            if(user.stocksBucket[i].stockName == stockName){
+                const 
+                {   stockName: uStockName, 
+                    ltp: ultp, 
+                    qty: uqty,
+                    investedVal: uinvestedVal
+                } = user.stocksBucket[i];
+
+                // check if sufficient qt of stocks
+                if(qty > uqty)
+                    return res.status(400).json({ errors: [{message: "Holdings insufficient."}] });
+                
+                let abp = uinvestedVal / uqty;
+                let lostInvestment = abp * qty;
+                user.stocksBucket[i].investedVal -= lostInvestment;
+                user.stocksBucket[i].qty -= qty;
+                user.stocksBucket[i].ltp = price;
+
+
+                //update wallet by currentval
+                let gainWallet = qty * price;
+                user.wallet += gainWallet;                
+                isBought = true; 
+                break; 
             }
         }
 
         if(!isBought)
-            return res.status(400).json({ errors: [{message: "Error"}] });
+            return res.status(400).json({ errors: [{message: "No such stock in holdings"}] });
     
         await user.save();
         res.json({msg: "SUCCCESS", qty, price, stockName});
