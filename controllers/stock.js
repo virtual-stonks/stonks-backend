@@ -15,7 +15,7 @@ const buy = async (req,res) => {
     try{
         const user = await UserModel.findById(req.user.id);
         if(user.wallet < qty * price)
-            return res.status(400).json({ errors: [{message: "Wallet insufficient."}] });
+            return res.status(400).json({ msg: "BUY failed! Wallet insufficient." });
         user.wallet -= qty * price;
 
         let isBought = false;
@@ -39,22 +39,23 @@ const buy = async (req,res) => {
         }
 
         await user.save();
-        res.json({msg: "SUCCESS", qty, price, stockName});
+        res.status(200).json({ msg: "SUCCESS", payload: {qty, price, stockName} });
     } catch(err){
         console.log(err);
-        res.status(400).json({msg: "Failed to buy stock"});
+        res.status(400).json({ msg: "BUY stock Failed!" });
     }
 }
 
 const sell = async (req,res) => {
     let {qty, price, stockName} = req.query;
+    qty = Number(qty); price = Number(price);
     const {email, id} = req.user;
     
     try{
         const user = await UserModel.findById(req.user.id);
         let isBought = false;
-
-        for(let i = user.stocksBucket.length - 1; i >= 0 ; i--){
+        
+        for(let i = 0; i < user.stocksBucket.length; i++){
             if(user.stocksBucket[i].stockName == stockName){
                 const 
                 {   stockName: uStockName, 
@@ -65,14 +66,13 @@ const sell = async (req,res) => {
 
                 // check if sufficient qt of stocks
                 if(qty > uqty)
-                    return res.status(400).json({ errors: [{message: "Holdings insufficient."}] });
+                    return res.status(400).json({ msg: "SELL failed! Holdings insufficient."});
                 
                 let abp = uinvestedVal / uqty;
                 let lostInvestment = abp * qty;
                 user.stocksBucket[i].investedVal -= lostInvestment;
                 user.stocksBucket[i].qty -= qty;
                 user.stocksBucket[i].ltp = price;
-
 
                 //update wallet by currentval
                 let gainWallet = qty * price;
@@ -83,13 +83,13 @@ const sell = async (req,res) => {
         }
 
         if(!isBought)
-            return res.status(400).json({ errors: [{message: "No such stock in holdings"}] });
+            return res.status(400).json({msg: "SELL failed! No such stock in holdings"});
     
         await user.save();
-        res.json({msg: "SUCCCESS", qty, price, stockName});
+        res.json({msg: "SUCCCESS", payload: { qty, price, stockName} });
     } catch(err){
         console.log(err);
-        res.status(400).json({msg: "Failed to sell stock"});    
+        res.status(400).json({msg: "SELL failed!"});    
     }
 }
 
@@ -99,12 +99,23 @@ const holdings = async (req, res) => {
         res.status(201).json(userStocks);
     } catch (error) {
         console.log(error.message);
-        res.status(500).json({ message: "Server Error" });   
+        res.status(500).json({ msg: "Server Error" });   
+    }
+}
+
+const wallet = async (req, res) => {
+    try {
+        const userWallet = await UserModel.findById(req.user.id).select("wallet");
+        res.status(201).json(userWallet);
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({ msg: "Server Error" });   
     }
 }
 
 module.exports = {
     buy,
     sell,
-    holdings
+    holdings,
+    wallet
 }
