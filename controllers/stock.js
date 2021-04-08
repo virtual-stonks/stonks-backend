@@ -4,12 +4,16 @@ const axios = require("axios");
 const UserModel = require("../models/user.js");
 const StockModel = require("../models/stock.js");
 
-const buy = async (req,res) => {    
-    var {qty, price, stockName} = req.query;
+const buy = async (req,res) => {   
+    console.log("user", req.user);
+    console.log("query", req.query);    
+
+    let {qty, price, stockName} = req.query;
+    const {email, id} = req.user;
     qty = Number(qty); price = Number(price);
 
-    const user = await UserModel.findById(req.user.id);
     try{
+        const user = await UserModel.findById(req.user.id);
         if(user.wallet < qty * price)
             return res.status(400).json({ errors: [{message: "Wallet insufficient."}] });
         user.wallet -= qty * price;
@@ -19,18 +23,18 @@ const buy = async (req,res) => {
             if(user.stocksBucket[i].name == stockName){
                 user.stocksBucket[i].ltp = price;
                 user.stocksBucket[i].qty += qty; 
-                user.stocksBucket[i].investedVal += qty * price;
-                
-                isBought = true; break; 
+                user.stocksBucket[i].investedVal += qty * price;                
+                isBought = true; 
+                break; 
             }
         }
 
         if(!isBought){
-            const newStock = await StockModel.create({ name : stockName, 
+            const newStock = new StockModel({ name : stockName, 
                                                        qty,
-                                                       investedVal : qty * price,
-                                                       currentVal : qty * price, 
-                                                       ltp: price});
+                                                       investedVal : qty * price,                                                       
+                                                       ltp: price
+                                            });
             user.stocksBucket.push(newStock);
         }
 
