@@ -95,12 +95,11 @@ const sell = async (req,res) => {
 
 const holdings = async (req, res) => {
     try {
-      const stockPriceUpdt = await axios.get(`https://finnhub.io/api/v1/quote?symbol=MSFT&token=${process.env.FINNHUB_TOKEN}`)        
-      console.log(stockPriceUpdt.data);
-      res.json({payload: stockPriceUpdt.data});
-    } catch (err) {
-        console.log(err);
-        res.status(400).json({msg: "Error"});
+        const userStocks = await UserModel.findById(req.user.id).select("stocksBucket");
+        res.status(201).json(userStocks);
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({ message: "Server Error" });   
     }
 }
 
