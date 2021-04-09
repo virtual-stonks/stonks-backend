@@ -12,6 +12,9 @@ const buy = async (req,res) => {
     const {email, id} = req.user;
     qty = Number(qty); price = Number(price);
 
+    if(qty <= 0)
+        return res.status(400).json({ msg: "BUY failed! 0 quantity selected!" });
+
     try{
         const user = await UserModel.findById(req.user.id);
         if(user.wallet < qty * price)
@@ -50,6 +53,9 @@ const sell = async (req,res) => {
     let {qty, price, stockName} = req.query;
     qty = Number(qty); price = Number(price);
     const {email, id} = req.user;
+
+    if(qty <= 0)
+        return res.status(400).json({ msg: "SELL failed! 0 quantity selected!" });
     
     try{
         const user = await UserModel.findById(req.user.id);
@@ -73,6 +79,11 @@ const sell = async (req,res) => {
                 user.stocksBucket[i].investedVal -= lostInvestment;
                 user.stocksBucket[i].qty -= qty;
                 user.stocksBucket[i].ltp = price;
+
+                // if 0 qts remain, remove the stock
+                if(user.stocksBucket[i].qty === 0){
+                    user.stocksBucket.splice(i, 1);
+                }
 
                 //update wallet by currentval
                 let gainWallet = qty * price;
