@@ -9,6 +9,7 @@ const buy = async (req,res) => {
     // console.log("query", req.query);    
 
     let {qty, price, stockName} = req.query;
+    console.log('body', req.data);
     const {email, id} = req.user;
     qty = Number(qty); price = Number(price);
 
