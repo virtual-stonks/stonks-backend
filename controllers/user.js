@@ -29,7 +29,7 @@ const signin = async (req, res) => {
         const token = jwt.sign(
             payload, 
             process.env.JWT_SECRET, 
-            { expiresIn: "1h" } 
+            { expiresIn: "24h" } 
         );
 
         res.status(201).json({ token });
@@ -75,7 +75,7 @@ const signup = async (req, res) => {
         const token = jwt.sign(
             payload, 
             process.env.JWT_SECRET, 
-            { expiresIn: "1h" } 
+            { expiresIn: "24h" } 
         );
 
         // send json 
