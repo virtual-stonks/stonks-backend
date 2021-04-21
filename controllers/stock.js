@@ -43,23 +43,30 @@ const buy = async (req,res) => {
 }
 
 const sell = async (req,res) => {
-    const {qty, price, stockName} = req.query;
+    var {qty, price, stockName} = req.query;
+    qty = Number(qty); price = Number(price);
 
     const user = await UserModel.findById(req.user.id);
     try{
         var isBought = false;
-        for(var i = user.stocksBucket.size - 1; i >= 0 ; i--){
+        for(var i = user.stocksBucket.length - 1; i >= 0 ; i--){
             if(user.stocksBucket[i].name == stockName){
-                //update currentval of stock
-                //update wallet by currentval
+                if(user.stocksBucket[i].qty < qty)
+                    return res.status(400).json({ errors: [{message: "Invalid sell request"}] });
+                
+                user.stocksBucket[i].qty -= qty;
+                user.stocksBucket[i].ltp = price;
+                user.stocksBucket[i].investedVal -= qty * price;
+                user.stocksBucket[i].currentVal = user.stocksBucket[i].qty * price;
 
-                user.stocksBucket.splice(i, 1);
+                user.wallet += qty * price;
+
                 isBought = true; break; 
             }
         }
 
         if(!isBought)
-            return res.status(400).json({ errors: [{message: "Error"}] });
+            return res.status(400).json({ errors: [{message: "Stock not bought"}] });
     
         await user.save();
         res.json({msg: "SUCCCESS", qty, price, stockName});
@@ -71,7 +78,7 @@ const sell = async (req,res) => {
 
 const holdings = async (req, res) => {
     try {
-      const stockPriceUpdt = await axios.get(`https://finnhub.io/api/v1/quote?symbol=MSFT&token=${process.env.FINNHUB_TOKEN}`)        
+      const stockPriceUpdt = await axios.get(`https://finnhub.io/api/v1/quote?symbol=MSFT&token=${process.env.FINNHUB_TOKEN}`);        
       console.log(stockPriceUpdt.data);
       res.json({payload: stockPriceUpdt.data});
     } catch (err) {
