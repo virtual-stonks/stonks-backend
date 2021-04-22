@@ -125,9 +125,25 @@ const wallet = async (req, res) => {
     }
 }
 
+const tickerlist = async (req, res) => {
+    try {
+        const userStocks = await UserModel.findById(req.user.id).select("stocksBucket");        
+        const tickers = [];
+        for(let i = 0; i < userStocks.stocksBucket.length; i++){
+            tickers.push(userStocks.stocksBucket[i].stockName.toLowerCase() + "usdt@miniTicker");
+        }
+
+        res.status(201).json(tickers);
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({ msg: "Server Error" });   
+    }
+}
+
 module.exports = {
     buy,
     sell,
     holdings,
-    wallet
+    wallet,
+    tickerlist
 }
