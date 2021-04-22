@@ -6,6 +6,7 @@ const dotenv = require('dotenv');
 
 const userRouter = require("./routes/user");
 const stockRouter = require("./routes/stock");
+const externalRouter = require("./routes/external");
 
 const app = express();
 dotenv.config();
@@ -17,6 +18,7 @@ app.use(cors());
 
 app.use("/api/user", userRouter);
 app.use("/api/stock", stockRouter);
+app.use("/api/external", externalRouter);
 
 app.use('/', (req, res) => {
     res.send('stonks-backend is running!');
