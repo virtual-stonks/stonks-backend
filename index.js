@@ -7,6 +7,7 @@ const dotenv = require('dotenv');
 const userRouter = require("./routes/user");
 const stockRouter = require("./routes/stock");
 const externalRouter = require("./routes/external");
+// require('./redis/redis_init.js');
 
 const app = express();
 dotenv.config();
