@@ -3,6 +3,7 @@ const axios = require("axios");
 
 const UserModel = require("../models/user.js");
 const StockModel = require("../models/stock.js");
+const TransactionModel = require("../models/transaction.js");
 
 const buy = async (req,res) => {   
     // console.log("user", req.user);
@@ -41,6 +42,13 @@ const buy = async (req,res) => {
                                             });
             user.stocksBucket.push(newStock);
         }
+
+        const newTransaction = new TransactionModel({   stockName,
+                                                        isBuy : true,
+                                                        qty,
+                                                        cost : qty * price
+                                                    });
+        user.transactionsBucket.push(newTransaction);
 
         await user.save();
         res.status(200).json({ msg: "SUCCESS", payload: {qty, price, stockName} });
@@ -96,6 +104,13 @@ const sell = async (req,res) => {
 
         if(!isBought)
             return res.status(400).json({msg: "SELL failed! No such stock in holdings"});
+        
+        const newTransaction = new TransactionModel({   stockName,
+                                                        isBuy : false,
+                                                        qty,
+                                                        cost : qty * price
+                                                    });
+        user.transactionsBucket.push(newTransaction);
     
         await user.save();
         res.json({msg: "SUCCCESS", payload: { qty, price, stockName} });
