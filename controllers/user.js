@@ -1,7 +1,11 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const gravatar = require('gravatar');
+const schedule = require('node-schedule')
 
+// cron
+const {cronUpdateLtp} = require('./stock.js');
+const cronTime = 5;
 const UserModel = require("../models/user.js");
 
 const signin = async (req, res) => {
@@ -34,6 +38,8 @@ const signin = async (req, res) => {
 
         res.status(201).json({ token });
 
+        // CRON
+        schedule.scheduleJob(`*/${cronTime} * * * * *`, () => cronUpdateLtp(oldUser.id));               
     } catch (error) {
         console.log(error.message);
         res.status(500).json({ message: "Invalid credentials!" });   
@@ -47,8 +53,9 @@ const signup = async (req, res) => {
      try {
         // See if user exists
         const oldUser = await UserModel.findOne({ email });
-        if (oldUser) 
+        if (oldUser){            
             return res.status(400).json({ errors: [{message: "User already exists"}] });
+        }
 
         // Get users gravatar
         const avatar = gravatar.url(email, {
@@ -77,7 +84,9 @@ const signup = async (req, res) => {
             process.env.JWT_SECRET, 
             { expiresIn: "24h" } 
         );
-
+                
+        // CRON
+        schedule.scheduleJob(`*/${cronTime} * * * * *`, () => cronUpdateLtp(result._id));                                            
         // send json 
         res.status(201).json({ token });
 
