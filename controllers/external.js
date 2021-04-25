@@ -14,7 +14,7 @@ const coinslist = async (req, res) => {
             }
         });
 
-        // 
+        // return json
         res.status(201).json(coinsData.data);
     } catch (error) {
         console.log(error.message);
