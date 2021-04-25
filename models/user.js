@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const stockSchema = require("./stock").schema;
+const transactionSchema = require("./transaction").schema;
 
 const userSchema = mongoose.Schema({
   name: { type: String, required:  true },
@@ -8,7 +9,8 @@ const userSchema = mongoose.Schema({
   avatar: {type: String},
   date: {type: Date, default: Date.now},  
   wallet: {type: Number, default: 10000},
-  stocksBucket: {type: [stockSchema]}
+  stocksBucket: {type: [stockSchema]},
+  transactionsBucket: {type: [transactionSchema]}
 });
  
 module.exports =  mongoose.model("User", userSchema);

@@ -3,6 +3,7 @@ const axios = require("axios");
 
 const UserModel = require("../models/user.js");
 const StockModel = require("../models/stock.js");
+const TransactionModel = require("../models/transaction.js");
 
 const buy = async (req, res) => {
     let { qty, price, stockName } = req.query;
@@ -40,6 +41,13 @@ const buy = async (req, res) => {
             });
             user.stocksBucket.push(newStock);
         }
+
+        const newTransaction = new TransactionModel({   stockName,
+                                                        isBuy : true,
+                                                        qty,
+                                                        cost : qty * price
+                                                    });
+        user.transactionsBucket.push(newTransaction);
 
         await user.save();
         res.status(200).json({ msg: "SUCCESS", payload: { qty, price, stockName } });
