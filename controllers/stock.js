@@ -47,7 +47,7 @@ const buy = async (req, res) => {
                                                         qty,
                                                         cost : qty * price
                                                     });
-        user.transactionsBucket.push(newTransaction);
+        user.transactionsBucket.unshift(newTransaction);
 
         await user.save();
         res.status(200).json({ msg: "SUCCESS", payload: { qty, price, stockName } });
@@ -105,6 +105,14 @@ const sell = async (req, res) => {
         if (!isBought)
             return res.status(400).json({ msg: "SELL failed! No such stock in holdings" });
 
+        const newTransaction = new TransactionModel({   stockName,
+                                                        isBuy : false,
+                                                        qty,
+                                                        cost : qty * price
+                                                    });
+
+        user.transactionsBucket.unshift(newTransaction);
+
         await user.save();
         res.json({ msg: "SUCCCESS", payload: { qty, price, stockName } });
     } catch (err) {
@@ -117,6 +125,16 @@ const holdings = async (req, res) => {
     try {
         const userStocks = await UserModel.findById(req.user.id).select("stocksBucket");
         res.status(201).json(userStocks);
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({ msg: "Server Error" });
+    }
+}
+
+const transactions = async (req, res) => {
+    try {
+        const transactionsList = await UserModel.findById(req.user.id).select("transactionsBucket");
+        res.status(201).json(transactionsList);
     } catch (error) {
         console.log(error.message);
         res.status(500).json({ msg: "Server Error" });
@@ -186,6 +204,7 @@ module.exports = {
     buy,
     sell,
     holdings,
+    transactions,
     wallet,
     tickerlist,
     cronUpdateLtp
