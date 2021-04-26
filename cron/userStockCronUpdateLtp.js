@@ -18,24 +18,7 @@ const userStockCronUpdateLtp = async (user_id) => {
                     console.log('REDIS ERROR!')
                 };
                 if (data != null) {
-                    console.log('Cache HIT!', `before ${stockName} - ${user.stocksBucket[i].ltp}`);
-                    // console.log(user.stocksBucket[i]);
-                    // // user.stocksBucket[i].ltp = data;                       
-                    // user.updateOne({ 'stocksBucket._id': _id }, {
-                    //     $set: {
-                    //         'stocksBucket.$.ltp': data,
-                    //     }
-                    // }, (err) => {
-                    //     console.log('mongoose err', err);
-                    // });
-                    // // user.markModified('stocksBucket.ltp');
-                    // console.log(`after ${stockName} - ${user.stocksBucket[i].ltp}`);
-
-                    // const indiStock = user.stocksBucket.id(_id);
-                    // indiStock.ltp = data;
-                    // await user.save();             
-
-
+                    // console.log('Cache HIT!', `before ${stockName} - ${user.stocksBucket[i].ltp}`);                            
                     const doc = await UserModel.findOneAndUpdate({
                         "_id": user_id, "stocksBucket._id": _id
                     }, {
