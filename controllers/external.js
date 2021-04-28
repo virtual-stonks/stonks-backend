@@ -8,7 +8,7 @@ const coinslist = async (req, res) => {
 
         // SET to redis
         const redisValue = JSON.stringify(coinsData.data);
-        client.setex('coindata', 180, redisValue, (err, val) => {
+        client.setex('coindata', 300, redisValue, (err, val) => {
             if (err != null) {
                 console.log('Error SETEX in redis!');
             }

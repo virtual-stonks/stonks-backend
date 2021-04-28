@@ -10,7 +10,7 @@ const userValidationRulesSignup = (typeofauth) => {
         .withMessage('User name can not be empty!')
         .bail()
         .isLength({min: 3})
-        .withMessage('Minimum 3 characters required!')
+        .withMessage('Username - Minimum 3 characters required!')
         .bail(),  
       check('email')
         .trim()
@@ -21,7 +21,7 @@ const userValidationRulesSignup = (typeofauth) => {
         .bail(),
       check('password')
         .isLength({min: 6})
-        .withMessage('Minumum 6 characters required')
+        .withMessage('Password - Minumum 6 characters required')
         .bail(),    
     ]
 }
@@ -49,10 +49,11 @@ const validate = (req, res, next) => {
       return next()
     }
     const extractedErrors = []
-    errors.array().map(err => extractedErrors.push({ [err.param]: err.msg }))
-  
+    errors.array().map(err => extractedErrors.push({msg: err.msg}));
+    
+    console.log(extractedErrors);
     return res.status(400).json({
-      errors: extractedErrors,
+      errors: [...extractedErrors],      
     })
 }
 

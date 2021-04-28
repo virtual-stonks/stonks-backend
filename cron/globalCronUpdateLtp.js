@@ -2,7 +2,7 @@ const axios = require('axios');
 const client = require('../redis/redis_init.js');
 
 // GLOBAL CRON
-const cache_exp = 180;
+const cache_exp = 300;
 const globalCronUpdateLtp = async () => {
     console.log('GLOBAL CRON RUNNING!');
 
