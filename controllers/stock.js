@@ -49,7 +49,8 @@ const buy = async (req, res) => {
             isBuy: true,
             qty,
             cost: qty * price,
-            image
+            image,
+            wallet: user.wallet
         });
         user.transactionsBucket.unshift(newTransaction);
 
@@ -115,7 +116,8 @@ const sell = async (req, res) => {
             isBuy: false,
             qty,
             cost: qty * price,
-            image
+            image,
+            wallet: user.wallet
         });
 
         user.transactionsBucket.unshift(newTransaction);
