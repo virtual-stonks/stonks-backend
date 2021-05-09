@@ -43,5 +43,5 @@ mongoose.set('debug', true);
 
 
 // CRON
-const cronTime = 300;
+const cronTime = 120;
 schedule.scheduleJob(`*/${cronTime} * * * * *`, globalCronUpdateLtp);               

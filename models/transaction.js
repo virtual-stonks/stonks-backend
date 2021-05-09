@@ -5,7 +5,8 @@ const transactionSchema = new mongoose.Schema({
   isBuy: {type: Boolean, default: true},
   qty: {type: Number, default: 0},
   cost: {type: Number, default: 0},
-  date : {type: Date, default: Date.now}
+  date : {type: Date, default: Date.now},
+  image: {type: String}
 });
 
 module.exports = mongoose.model("Transaction", transactionSchema);

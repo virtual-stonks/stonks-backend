@@ -6,8 +6,9 @@ const StockModel = require("../models/stock.js");
 const TransactionModel = require("../models/transaction.js");
 
 const buy = async (req, res) => {
-    let { qty, price, stockName } = req.query;
-    console.log('body', req.data);
+    let { qty, price, stockName, image } = req.query;
+
+    console.log('body', image);
     const { email, id } = req.user;
     qty = Number(qty);
     price = Number(price);
@@ -37,7 +38,8 @@ const buy = async (req, res) => {
                 stockName,
                 qty,
                 investedVal: qty * price,
-                ltp: price
+                ltp: price,
+                image
             });
             user.stocksBucket.push(newStock);
         }
@@ -46,7 +48,8 @@ const buy = async (req, res) => {
             stockName,
             isBuy: true,
             qty,
-            cost: qty * price
+            cost: qty * price,
+            image
         });
         user.transactionsBucket.unshift(newTransaction);
 
@@ -59,7 +62,8 @@ const buy = async (req, res) => {
 }
 
 const sell = async (req, res) => {
-    let { qty, price, stockName } = req.query;
+    let { qty, price, stockName, image } = req.query;
+    console.log('sell img', image);
     qty = Number(qty);
     price = Number(price);
     const { email, id } = req.user;
@@ -110,7 +114,8 @@ const sell = async (req, res) => {
             stockName,
             isBuy: false,
             qty,
-            cost: qty * price
+            cost: qty * price,
+            image
         });
 
         user.transactionsBucket.unshift(newTransaction);
