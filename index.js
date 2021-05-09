@@ -4,10 +4,13 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const morgan = require('morgan');
+const schedule = require('node-schedule')
 
 const userRouter = require("./routes/user");
 const stockRouter = require("./routes/stock");
 const externalRouter = require("./routes/external");
+
+const {globalCronUpdateLtp} = require('./cron/globalCronUpdateLtp.js');
 
 const app = express();
 dotenv.config();
@@ -35,6 +38,10 @@ mongoose.connect(CONNECTION_URL, { useNewUrlParser: true, useUnifiedTopology: tr
   }))
   .catch((error) => console.log(`${error} did not connect`));
 
-mongoose.set('useFindAndModify', false);
+mongoose.set('useFindAndModify', false);	
+mongoose.set('debug', true);
 
-	
+
+// CRON
+const cronTime = 120;
+schedule.scheduleJob(`*/${cronTime} * * * * *`, globalCronUpdateLtp);               

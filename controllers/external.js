@@ -8,7 +8,7 @@ const coinslist = async (req, res) => {
 
         // SET to redis
         const redisValue = JSON.stringify(coinsData.data);
-        client.setex('coindata', 180, redisValue, (err, val) => {
+        client.setex('coindata', 300, redisValue, (err, val) => {
             if (err != null) {
                 console.log('Error SETEX in redis!');
             }
@@ -22,6 +22,28 @@ const coinslist = async (req, res) => {
     }
 }
 
+const trending = async (req, res) => {
+    console.log('Trending hit!')
+    try {
+        const trendingData = await axios.get('https://api.coingecko.com/api/v3/search/trending');
+
+        // SET to redis
+        const redisValue = JSON.stringify(trendingData.data);
+        client.setex('trendingdata', 300, redisValue, (err, val) => {
+            if (err != null) {
+                console.log('Error SETEX in redis!');
+            }
+        });
+
+        // return json
+        res.status(201).json(trendingData.data);
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({ message: "Server Error" });
+    }
+}
+
 module.exports = {
-    coinslist
+    coinslist,
+    trending
 }

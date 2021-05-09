@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const stockSchema = require("./stock").schema;
 const transactionSchema = require("./transaction").schema;
 
-const userSchema = mongoose.Schema({
+const userSchema = new mongoose.Schema({
   name: { type: String, required:  true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },

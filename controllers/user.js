@@ -3,10 +3,11 @@ const jwt = require("jsonwebtoken");
 const gravatar = require('gravatar');
 const schedule = require('node-schedule')
 
-// cron
-const {cronUpdateLtp} = require('./stock.js');
-const cronTime = 5;
 const UserModel = require("../models/user.js");
+
+// CRON
+const {userStockCronUpdateLtp} = require('../cron/userStockCronUpdateLtp.js');
+const cronTime = 120;
 
 const signin = async (req, res) => {
     console.log(req.body);
@@ -15,12 +16,12 @@ const signin = async (req, res) => {
     try {
         const oldUser = await UserModel.findOne({ email });
         if (!oldUser) 
-            return res.status(404).json({ message: "Invalid credentials" });
+            return res.status(404).json({errors: [{ msg: "Invalid credentials"}] });
         
         const isPasswordCorrect = await bcrypt.compare(password, oldUser.password);
 
         if (!isPasswordCorrect) 
-            return res.status(400).json({ message: "Invalid credentials" });
+            return res.status(400).json({ errors: [{msg: "Invalid credentials"}] });
 
         
         const payload = {
@@ -36,10 +37,10 @@ const signin = async (req, res) => {
             { expiresIn: "24h" } 
         );
 
-        res.status(201).json({ token });
-
         // CRON
-        schedule.scheduleJob(`*/${cronTime} * * * * *`, () => cronUpdateLtp(oldUser.id));               
+        schedule.scheduleJob(`*/${cronTime} * * * * *`, () => userStockCronUpdateLtp(oldUser.id));    
+
+        res.status(201).json({ token });        
     } catch (error) {
         console.log(error.message);
         res.status(500).json({ message: "Invalid credentials!" });   
@@ -54,7 +55,7 @@ const signup = async (req, res) => {
         // See if user exists
         const oldUser = await UserModel.findOne({ email });
         if (oldUser){            
-            return res.status(400).json({ errors: [{message: "User already exists"}] });
+            return res.status(400).json({ errors: [{msg: "User already exists"}] });
         }
 
         // Get users gravatar
@@ -84,15 +85,16 @@ const signup = async (req, res) => {
             process.env.JWT_SECRET, 
             { expiresIn: "24h" } 
         );
-                
+
         // CRON
-        schedule.scheduleJob(`*/${cronTime} * * * * *`, () => cronUpdateLtp(result._id));                                            
+        schedule.scheduleJob(`*/${cronTime} * * * * *`, () => userStockCronUpdateLtp(result._id));     
+                        
         // send json 
         res.status(201).json({ token });
 
      } catch (error) {
          console.log(error.message);
-         res.status(500).json({ message: "Failed to sign up!" });   
+         res.status(500).json({ errors: [{msg: "Failed to sign up!"}]});   
      }    
 }
 

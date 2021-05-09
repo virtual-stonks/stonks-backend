@@ -6,8 +6,9 @@ const StockModel = require("../models/stock.js");
 const TransactionModel = require("../models/transaction.js");
 
 const buy = async (req, res) => {
-    let { qty, price, stockName } = req.query;
-    console.log('body', req.data);
+    let { qty, price, stockName, image } = req.query;
+
+    console.log('body', image);
     const { email, id } = req.user;
     qty = Number(qty);
     price = Number(price);
@@ -37,16 +38,20 @@ const buy = async (req, res) => {
                 stockName,
                 qty,
                 investedVal: qty * price,
-                ltp: price
+                ltp: price,
+                image
             });
             user.stocksBucket.push(newStock);
         }
 
-        const newTransaction = new TransactionModel({   stockName,
-                                                        isBuy : true,
-                                                        qty,
-                                                        cost : qty * price
-                                                    });
+        const newTransaction = new TransactionModel({
+            stockName,
+            isBuy: true,
+            qty,
+            cost: qty * price,
+            image,
+            wallet: user.wallet
+        });
         user.transactionsBucket.unshift(newTransaction);
 
         await user.save();
@@ -58,7 +63,8 @@ const buy = async (req, res) => {
 }
 
 const sell = async (req, res) => {
-    let { qty, price, stockName } = req.query;
+    let { qty, price, stockName, image } = req.query;
+    console.log('sell img', image);
     qty = Number(qty);
     price = Number(price);
     const { email, id } = req.user;
@@ -105,11 +111,14 @@ const sell = async (req, res) => {
         if (!isBought)
             return res.status(400).json({ msg: "SELL failed! No such stock in holdings" });
 
-        const newTransaction = new TransactionModel({   stockName,
-                                                        isBuy : false,
-                                                        qty,
-                                                        cost : qty * price
-                                                    });
+        const newTransaction = new TransactionModel({
+            stockName,
+            isBuy: false,
+            qty,
+            cost: qty * price,
+            image,
+            wallet: user.wallet
+        });
 
         user.transactionsBucket.unshift(newTransaction);
 
@@ -166,46 +175,11 @@ const tickerlist = async (req, res) => {
     }
 }
 
-const cronUpdateLtp = async (user_id) => {
-    try {
-        const user = await UserModel.findById(user_id);                    
-
-        // call a loop of GET request to Binance & save to DB
-        let promises = [];
-        let allCronData = [];
-
-         for (let i = 0; i < user.stocksBucket.length; i++) {
-            promises.push(
-                axios
-                .get(`https://api.binance.com/api/v3/ticker/price?symbol=${user.stocksBucket[i].stockName + "USDT"}`)
-                .then(response => {
-                    // do something with response                    
-                    allCronData.push(response.data);
-                    user.stocksBucket[i].ltp = response.data.price;
-                })
-                .catch((err) => console.log('err'))
-            )
-        }
-
-        Promise.all(promises).then(() => {
-            console.log('DB updated by cron', allCronData)
-            user.save();
-        })
-        .catch((err) => {
-            console.log('DB not updated!')
-        });
-         
-    } catch (error) {
-        console.log(error.message);
-    }
-}
-
 module.exports = {
     buy,
     sell,
     holdings,
     transactions,
     wallet,
-    tickerlist,
-    cronUpdateLtp
+    tickerlist,      
 }
