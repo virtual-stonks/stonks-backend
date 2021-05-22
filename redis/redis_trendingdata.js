@@ -7,7 +7,7 @@ const cache_trendingdata = (req, res, next) => {
 			console.log('REDIS ERROR!')
 		};
 		if(data != null){
-			console.log('Cache HIT!')
+			console.log('Cache HIT for trendingdata!')
 			res.status(201).json(JSON.parse(data));
 		}else{
 			console.log('CACHE MISS!')

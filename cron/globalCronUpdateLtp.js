@@ -1,11 +1,12 @@
 const axios = require('axios');
 const client = require('../redis/redis_init.js');
+const dotenv = require('dotenv');
+dotenv.config();
 
 // GLOBAL CRON
-const cache_exp = 120;
+const cache_exp = process.env.CRON_TIME;
 const globalCronUpdateLtp = async () => {
-    console.log('GLOBAL CRON RUNNING!');
-
+    console.log('GLOBAL CRON RUNNING!', cache_exp);    
     axios
         .get(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=1000&page=1&sparkline=false`)
         .then(response => {
@@ -15,7 +16,7 @@ const globalCronUpdateLtp = async () => {
             const redisValue = JSON.stringify(response.data);
             client.setex('coindata', cache_exp, redisValue, (err, val) => {
                 if (err != null) {
-                    console.log('Error SETEX in redis!');
+                    console.log('Error SETEX in redis for coindata!', err);
                 }
             });
 
@@ -38,7 +39,7 @@ const globalCronUpdateLtp = async () => {
                     rkey = rkey.substr(0, len - 4);
                     client.setex(rkey, cache_exp, rval, (err, val) => {
                         if (err != null) {
-                            console.log('Error SETEX in redis!', val);
+                            console.log('Error SETEX in redis for binance!', err);
                         }
                     });                    
                     dummy.push({ rkey, rval });

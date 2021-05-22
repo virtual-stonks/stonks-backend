@@ -7,7 +7,7 @@ const cache_coindata = (req, res, next) => {
 			console.log('REDIS ERROR!')
 		};
 		if(data != null){
-			console.log('Cache HIT!')
+			console.log('Cache HIT for coindata!')
 			res.status(201).json(JSON.parse(data));
 		}else{
 			console.log('CACHE MISS!')

@@ -34,7 +34,7 @@ const PORT = process.env.PORT|| 5000;
 
 mongoose.connect(CONNECTION_URL, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true })
   .then(() => app.listen(PORT, () => {
-  	console.log(`Server Running on Port: ${PORT}`)   
+  	console.log(`Server Running on Port: ${PORT}`, process.env.CRON_TIME)   
   }))
   .catch((error) => console.log(`${error} did not connect`));
 
@@ -43,5 +43,4 @@ mongoose.set('debug', true);
 
 
 // CRON
-const cronTime = 120;
-schedule.scheduleJob(`*/${cronTime} * * * * *`, globalCronUpdateLtp);               
+schedule.scheduleJob(`*/${process.env.CRON_TIME} * * * * *`, globalCronUpdateLtp);               

@@ -7,7 +7,7 @@ const UserModel = require("../models/user.js");
 
 // CRON
 const {userStockCronUpdateLtp} = require('../cron/userStockCronUpdateLtp.js');
-const cronTime = 120;
+const cronTime = process.env.CRON_TIME;
 
 const signin = async (req, res) => {
     console.log(req.body);
