@@ -9,3 +9,5 @@ App Architecture diagram:
 Backend Heroku Deployed Link: 
 [https://virtual-stonks-backend.herokuapp.com/](https://virtual-stonks-backend.herokuapp.com/)
 
+Documentation: [Virtual Stonks PPT](https://docs.google.com/presentation/d/1eMFgIvb-CO9Wky4uBhiPpP6k_5GWedKL/edit?usp=sharing&ouid=117046617198994833186&rtpof=true&sd=true)
+
